@@ -7,6 +7,7 @@ document.getElementById('findRestaurant').onclick = function() {
     const results = document.getElementById('results');
     const loading = document.getElementById('loading');
     const loadMoreButton = document.getElementById('loadMore');
+    const maxDistance = document.getElementById('distanceSlider').value;
 
     if (navigator.geolocation) {
         loading.style.display = 'block';
@@ -15,7 +16,7 @@ document.getElementById('findRestaurant').onclick = function() {
             const lon = position.coords.longitude;
             userCoordinates = { lat, lon };
             const restaurantType = document.getElementById('restaurantTypeSlider').value;
-            const url = `/.netlify/functions/getRestaurants?lat=${lat}&lon=${lon}&type=${restaurantType}`;
+            const url = `/.netlify/functions/getRestaurants?lat=${lat}&lon=${lon}&type=${restaurantType}&distance=${maxDistance}`;
 
             fetch(url)
                 .then(response => response.json())
@@ -48,6 +49,10 @@ document.getElementById('loadMore').onclick = function() {
     if (newElements.length > 0) {
         newElements[0].scrollIntoView({ behavior: 'smooth' });
     }
+};
+
+document.getElementById('distanceSlider').oninput = function() {
+    document.getElementById('distanceValue').innerText = this.value;
 };
 
 function displayNextResults() {

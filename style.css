@@ -42,7 +42,8 @@ body {
 
 .slider-labels {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    margin-top: 10px;
 }
 
 #results div {

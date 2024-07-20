@@ -1,7 +1,8 @@
 // functions/filters/casualDiningFilter.js
 const casualDiningKeywords = [
     "grill", "bistro", "cafe", "diner", "pub", "tavern", 
-    "brunch", "eatery", "family style", "pizzeria", "bar & grill"
+    "brunch", "eatery", "family style", "pizzeria", "bar & grill", 
+    "ale house", "sports bar", "gastropub", "bar"
 ];
 
 function casualDiningFilter(restaurant) {

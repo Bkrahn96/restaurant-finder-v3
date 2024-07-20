@@ -62,13 +62,11 @@ function filterByType(results, type, lat, lon) {
             filteredResults = results;
     }
 
-    // Ensure fast food options are ordered by distance
-    if (type === "0") {
-        filteredResults.sort((a, b) => 
-            calculateDistance(lat, lon, a.geometry.location.lat, a.geometry.location.lng) -
-            calculateDistance(lat, lon, b.geometry.location.lat, b.geometry.location.lng)
-        );
-    }
+    // Ensure all options are ordered by distance
+    filteredResults.sort((a, b) => 
+        calculateDistance(lat, lon, a.geometry.location.lat, a.geometry.location.lng) -
+        calculateDistance(lat, lon, b.geometry.location.lat, b.geometry.location.lng)
+    );
 
     const uniqueRestaurants = {};
     const chainCounts = {};

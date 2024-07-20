@@ -1,7 +1,8 @@
 // functions/filters/fineDiningFilter.js
 const fineDiningKeywords = [
     "steakhouse", "gourmet", "fine dining", "seafood", "sushi", 
-    "wine bar", "chef's table", "fusion", "tapas", "brasserie"
+    "wine bar", "chef's table", "fusion", "tapas", "brasserie", 
+    "upscale", "luxury dining"
 ];
 
 function fineDiningFilter(restaurant) {

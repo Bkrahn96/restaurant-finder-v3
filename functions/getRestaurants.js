@@ -14,7 +14,7 @@ exports.handler = async function(event, context) {
             const response = await fetch(url);
             const data = await response.json();
             if (data.status !== 'OK') {
-                throw new Error(`Google Places API error: ${data.status}`);
+                throw new Error(data.status);
             }
             allResults = allResults.concat(data.results);
             nextPageToken = data.next_page_token;
@@ -45,11 +45,11 @@ exports.handler = async function(event, context) {
 function filterByType(results, type, lat, lon) {
     const typesMap = {
         "0": ["meal_takeaway", "fast_food", "cafe"],  // Fast Food, Cafe
-        "1": ["restaurant", "bar", "pub"],            // Casual Dining
-        "2": ["restaurant"]                           // Fine Dining (not an explicit type in Places API)
+        "1": ["restaurant"],                         // Casual Dining
+        "2": ["restaurant"]                          // Fine Dining (not an explicit type in Places API)
     };
 
-    const excludeTypes = ["home_goods_store"];
+    const excludeTypes = ["bar", "home_goods_store"];
     const fastFoodKeywords = [
         "burger", "chicken", "sandwich", "fries", "fast food", "wendy's", "dairy queen"
     ];
@@ -57,21 +57,23 @@ function filterByType(results, type, lat, lon) {
     const typeKeywords = typesMap[type];
 
     if (!typeKeywords) {
-        console.error('Invalid type:', type);
         return results;
     }
 
     let filteredResults = results.filter(restaurant =>
-        typeKeywords.some(keyword => restaurant.types.includes(keyword)) &&
+        (typeKeywords.some(keyword => restaurant.types.includes(keyword)) ||
+        (type === "0" && fastFoodKeywords.some(keyword => restaurant.name.toLowerCase().includes(keyword)))) &&
         !excludeTypes.some(excludeType => restaurant.types.includes(excludeType)) &&
-        (type !== "1" || !fastFoodKeywords.some(keyword => restaurant.name.toLowerCase().includes(keyword)))
+        (type !== "0" || (restaurant.types.includes("bakery") ? restaurant.types.includes("cafe") : true))
     );
 
-    // Order by distance for all types
-    filteredResults.sort((a, b) => 
-        calculateDistance(lat, lon, a.geometry.location.lat, a.geometry.location.lng) -
-        calculateDistance(lat, lon, b.geometry.location.lat, b.geometry.location.lng)
-    );
+    // Ensure fast food options are ordered by distance
+    if (type === "0") {
+        filteredResults.sort((a, b) => 
+            calculateDistance(lat, lon, a.geometry.location.lat, a.geometry.location.lng) -
+            calculateDistance(lat, lon, b.geometry.location.lat, b.geometry.location.lng)
+        );
+    }
 
     const uniqueRestaurants = {};
     const chainCounts = {};

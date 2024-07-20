@@ -16,7 +16,7 @@ document.getElementById('findRestaurant').onclick = function() {
             const lon = position.coords.longitude;
             userCoordinates = { lat, lon };
             const restaurantType = document.getElementById('restaurantTypeSlider').value;
-            const url = `/.netlify/functions/getRestaurants?lat=${lat}&lon=${lon}&type=${restaurantType}&distance=${maxDistance}`;
+            const url = `/.netlify/functions/getRestaurants?lat=${lat}&lon=${lon}&type=${restaurantType}&maxDistance=${maxDistance}`;
 
             fetch(url)
                 .then(response => response.json())
@@ -49,10 +49,6 @@ document.getElementById('loadMore').onclick = function() {
     if (newElements.length > 0) {
         newElements[0].scrollIntoView({ behavior: 'smooth' });
     }
-};
-
-document.getElementById('distanceSlider').oninput = function() {
-    document.getElementById('distanceValue').innerText = this.value;
 };
 
 function displayNextResults() {
@@ -122,6 +118,13 @@ function handleGeolocationError(error) {
     }
     alert('Geolocation error. Please check your browser settings and try again.');
 }
+
+// Update distance label as slider moves
+const distanceSlider = document.getElementById('distanceSlider');
+const distanceValue = document.getElementById('distanceValue');
+distanceSlider.oninput = function() {
+    distanceValue.textContent = `${this.value} Miles`;
+};
 
 // Set default slider values based on current time
 window.onload = function() {

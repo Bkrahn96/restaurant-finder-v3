@@ -50,9 +50,15 @@ function filterByType(results, type, lat, lon) {
         "2": ["restaurant"]                          // Fine Dining (not an explicit type in Places API)
     };
 
-    const excludeTypes = ["bar", "home_goods_store", "home_cooking"];
+    const excludeTypes = ["bar", "home_goods_store"];
     const fastFoodKeywords = [
         "burger", "chicken", "sandwich", "fries", "fast food", "wendy's", "dairy queen", "smoothie"
+    ];
+    const casualDiningExcludeKeywords = [
+        "home cooking", "dunkin", "starbucks"
+    ];
+    const casualDiningIncludeKeywords = [
+        "home style", "sandwich", "soup"
     ];
 
     const typeKeywords = typesMap[type];
@@ -68,13 +74,13 @@ function filterByType(results, type, lat, lon) {
         (type !== "0" || (restaurant.types.includes("bakery") ? restaurant.types.includes("cafe") : true))
     );
 
-    // Exclude fast food from casual dining results
+    // Exclude fast food from casual dining results and apply additional filters
     if (type === "1") {
         filteredResults = filteredResults.filter(restaurant => 
             !fastFoodKeywords.some(keyword => restaurant.name.toLowerCase().includes(keyword)) &&
-            !restaurant.types.includes("home_cooking") || restaurant.name.toLowerCase().includes("home style") &&
+            !casualDiningExcludeKeywords.some(keyword => restaurant.name.toLowerCase().includes(keyword)) &&
             (!restaurant.types.includes("bakery") || restaurant.types.includes("cafe")) &&
-            (restaurant.types.includes("bakery") || restaurant.types.includes("cafe") ? restaurant.opening_hours.periods.some(period => period.open.time < "1700") : true)
+            (!restaurant.types.includes("bakery") || casualDiningIncludeKeywords.some(keyword => restaurant.name.toLowerCase().includes(keyword)))
         );
     }
 

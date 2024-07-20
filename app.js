@@ -4,6 +4,35 @@ let userCoordinates = null;
 const RESULTS_PER_PAGE = 3;
 
 document.getElementById('findRestaurant').onclick = function() {
+    initiateSearch();
+};
+
+document.getElementById('loadMore').onclick = function() {
+    displayNextResults();
+};
+
+document.getElementById('restaurantTypeSlider').oninput = function() {
+    initiateSearch();
+};
+
+document.getElementById('distanceSlider').oninput = function() {
+    const distanceValue = document.getElementById('distanceValue');
+    distanceValue.textContent = `${this.value} Miles`;
+    if (userCoordinates) {
+        const restaurantType = document.getElementById('restaurantTypeSlider').value;
+        fetchRestaurants(userCoordinates.lat, userCoordinates.lon, restaurantType, this.value)
+            .then(data => {
+                currentResults = data.results || [];
+                currentIndex = 0;
+                document.getElementById('results').innerHTML = '';
+                updateResultsCount();
+                displayNextResults();
+                document.getElementById('loadMore').style.display = currentResults.length > RESULTS_PER_PAGE ? 'block' : 'none';
+            });
+    }
+};
+
+function initiateSearch() {
     const results = document.getElementById('results');
     const loading = document.getElementById('loading');
     const loadMoreButton = document.getElementById('loadMore');
@@ -22,6 +51,7 @@ document.getElementById('findRestaurant').onclick = function() {
                     currentIndex = 0;
                     results.innerHTML = '';
                     loading.style.display = 'none';
+                    updateResultsCount();
                     loadMoreButton.style.display = currentResults.length > RESULTS_PER_PAGE ? 'block' : 'none';
                     displayNextResults();
                 })
@@ -36,11 +66,7 @@ document.getElementById('findRestaurant').onclick = function() {
     } else {
         results.innerHTML = '<p>Geolocation is not supported by this browser.</p>';
     }
-};
-
-document.getElementById('loadMore').onclick = function() {
-    displayNextResults();
-};
+}
 
 function displayNextResults() {
     const results = document.getElementById('results');
@@ -72,6 +98,11 @@ function displayNextResults() {
     if (currentIndex >= currentResults.length) {
         loadMoreButton.style.display = 'none';
     }
+}
+
+function updateResultsCount() {
+    const resultsCount = document.getElementById('results-count');
+    resultsCount.textContent = `Total Results Found: ${currentResults.length}`;
 }
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -109,24 +140,6 @@ function fetchRestaurants(lat, lon, type, maxDistance) {
     const url = `/.netlify/functions/getRestaurants?lat=${lat}&lon=${lon}&type=${type}&maxDistance=${maxDistance}`;
     return fetch(url).then(response => response.json());
 }
-
-// Update distance label as slider moves
-const distanceSlider = document.getElementById('distanceSlider');
-const distanceValue = document.getElementById('distanceValue');
-distanceSlider.oninput = function() {
-    distanceValue.textContent = `${this.value} Miles`;
-    if (userCoordinates) {
-        const restaurantType = document.getElementById('restaurantTypeSlider').value;
-        fetchRestaurants(userCoordinates.lat, userCoordinates.lon, restaurantType, this.value)
-            .then(data => {
-                currentResults = data.results || [];
-                currentIndex = 0;
-                document.getElementById('results').innerHTML = '';
-                displayNextResults();
-                document.getElementById('loadMore').style.display = currentResults.length > RESULTS_PER_PAGE ? 'block' : 'none';
-            });
-    }
-};
 
 // Set default slider values based on current time
 window.onload = function() {

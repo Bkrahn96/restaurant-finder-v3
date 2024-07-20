@@ -1,4 +1,3 @@
-// functions/handleGeolocationError.js
 module.exports = function handleGeolocationError(error) {
     const results = document.getElementById('results');
     switch(error.code) {

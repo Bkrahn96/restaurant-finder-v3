@@ -1,4 +1,3 @@
-// functions/calculateDistance.js
 module.exports = function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 3958.8; // Radius of the Earth in miles
     const dLat = (lat2 - lat1) * Math.PI / 180;

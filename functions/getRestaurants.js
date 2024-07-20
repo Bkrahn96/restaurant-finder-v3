@@ -52,14 +52,14 @@ function filterByType(results, type, lat, lon) {
 
     const excludeTypes = ["bar", "home_goods_store", "gas_station"];
     const fastFoodKeywords = [
-        "burger", "chicken", "sandwich", "fries", "fast food", "wendy's", "dairy queen", "mcdonald's", "smoothie"
+        "burger", "chicken", "sandwich", "fries", "fast food", "wendy's", "dairy queen", "smoothie"
     ];
+
     const casualDiningKeywords = [
-        "american", "asian", "indian", "italian", "seafood", "bar & grill", "home style"
+        "american", "asian", "indian", "italian", "seafood", "bar & grill"
     ];
-    const excludedCasualDiningKeywords = [
-        "fast food", "home cooking", "dunkin", "starbucks", "mcdonald's"
-    ];
+
+    const excludedFastFoodChains = ["mcdonald's", "dunkin", "starbucks"];
 
     const typeKeywords = typesMap[type];
 
@@ -74,14 +74,24 @@ function filterByType(results, type, lat, lon) {
         (type !== "0" || (restaurant.types.includes("bakery") ? restaurant.types.includes("cafe") : true))
     );
 
-    // Exclude fast food from casual dining results and apply additional criteria
+    // Exclude fast food from casual dining results and apply specific casual dining criteria
     if (type === "1") {
         filteredResults = filteredResults.filter(restaurant => 
             !fastFoodKeywords.some(keyword => restaurant.name.toLowerCase().includes(keyword)) &&
-            !excludedCasualDiningKeywords.some(keyword => restaurant.name.toLowerCase().includes(keyword)) &&
-            (casualDiningKeywords.some(keyword => restaurant.types.includes(keyword) || restaurant.name.toLowerCase().includes(keyword))) &&
-            (!restaurant.types.includes("bakery") || restaurant.types.includes("cafe")) &&
-            (!restaurant.types.includes("cafe") || restaurant.name.toLowerCase().includes("lunch") || restaurant.name.toLowerCase().includes("dinner"))
+            !excludedFastFoodChains.some(chain => restaurant.name.toLowerCase().includes(chain)) &&
+            !restaurant.types.includes("coffee_shop") &&
+            (restaurant.types.includes("bar") ||
+            casualDiningKeywords.some(keyword => restaurant.name.toLowerCase().includes(keyword)) ||
+            (restaurant.types.includes("bakery") && restaurant.types.includes("cafe")) ||
+            (restaurant.types.includes("bakery") && (restaurant.name.toLowerCase().includes("sandwich") || restaurant.name.toLowerCase().includes("soup"))))
+        );
+    }
+
+    // Ensure fast food options are ordered by distance
+    if (type === "0") {
+        filteredResults.sort((a, b) => 
+            calculateDistance(lat, lon, a.geometry.location.lat, a.geometry.location.lng) -
+            calculateDistance(lat, lon, b.geometry.location.lat, b.geometry.location.lng)
         );
     }
 

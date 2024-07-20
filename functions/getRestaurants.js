@@ -14,7 +14,7 @@ exports.handler = async function(event, context) {
             const response = await fetch(url);
             const data = await response.json();
             if (data.status !== 'OK') {
-                throw new Error(data.status);
+                throw new Error(`Google Places API error: ${data.status}`);
             }
             allResults = allResults.concat(data.results);
             nextPageToken = data.next_page_token;
@@ -50,10 +50,14 @@ function filterByType(results, type, lat, lon) {
     };
 
     const excludeTypes = ["bar", "home_goods_store"];
+    const fastFoodKeywords = [
+        "burger", "chicken", "sandwich", "fries", "fast food", "wendy's", "dairy queen"
+    ];
 
     const typeKeywords = typesMap[type];
 
     if (!typeKeywords) {
+        console.error('Invalid type:', type);
         return results;
     }
 

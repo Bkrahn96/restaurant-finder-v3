@@ -7,7 +7,6 @@ document.getElementById('findRestaurant').onclick = function() {
     const results = document.getElementById('results');
     const loading = document.getElementById('loading');
     const loadMoreButton = document.getElementById('loadMore');
-    const maxDistance = document.getElementById('distanceSlider').value;
 
     if (navigator.geolocation) {
         loading.style.display = 'block';
@@ -16,20 +15,15 @@ document.getElementById('findRestaurant').onclick = function() {
             const lon = position.coords.longitude;
             userCoordinates = { lat, lon };
             const restaurantType = document.getElementById('restaurantTypeSlider').value;
-            const url = `/.netlify/functions/getRestaurants?lat=${lat}&lon=${lon}&type=${restaurantType}&maxDistance=${maxDistance}`;
-
-            fetch(url)
-                .then(response => response.json())
+            const maxDistance = document.getElementById('distanceSlider').value;
+            fetchRestaurants(lat, lon, restaurantType, maxDistance)
                 .then(data => {
                     currentResults = data.results || [];
                     currentIndex = 0;
                     results.innerHTML = '';
                     loading.style.display = 'none';
                     loadMoreButton.style.display = currentResults.length > RESULTS_PER_PAGE ? 'block' : 'none';
-                    const newElements = displayNextResults();
-                    if (newElements.length > 0) {
-                        newElements[0].scrollIntoView({ behavior: 'smooth' });
-                    }
+                    displayNextResults();
                 })
                 .catch(error => {
                     results.innerHTML = '<p>Failed to fetch restaurant data. Please try again later.</p>';
@@ -45,18 +39,13 @@ document.getElementById('findRestaurant').onclick = function() {
 };
 
 document.getElementById('loadMore').onclick = function() {
-    const newElements = displayNextResults();
-    if (newElements.length > 0) {
-        newElements[0].scrollIntoView({ behavior: 'smooth' });
-    }
+    displayNextResults();
 };
 
 function displayNextResults() {
     const results = document.getElementById('results');
     const loadMoreButton = document.getElementById('loadMore');
     const nextResults = currentResults.slice(currentIndex, currentIndex + RESULTS_PER_PAGE);
-
-    const newElements = [];
 
     nextResults.forEach(restaurant => {
         const div = document.createElement('div');
@@ -77,15 +66,12 @@ function displayNextResults() {
             ${chainNote}
         `;
         results.appendChild(div);
-        newElements.push(div);
     });
 
     currentIndex += RESULTS_PER_PAGE;
     if (currentIndex >= currentResults.length) {
         loadMoreButton.style.display = 'none';
     }
-
-    return newElements;
 }
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -119,11 +105,27 @@ function handleGeolocationError(error) {
     alert('Geolocation error. Please check your browser settings and try again.');
 }
 
+function fetchRestaurants(lat, lon, type, maxDistance) {
+    const url = `/.netlify/functions/getRestaurants?lat=${lat}&lon=${lon}&type=${type}&maxDistance=${maxDistance}`;
+    return fetch(url).then(response => response.json());
+}
+
 // Update distance label as slider moves
 const distanceSlider = document.getElementById('distanceSlider');
 const distanceValue = document.getElementById('distanceValue');
 distanceSlider.oninput = function() {
     distanceValue.textContent = `${this.value} Miles`;
+    if (userCoordinates) {
+        const restaurantType = document.getElementById('restaurantTypeSlider').value;
+        fetchRestaurants(userCoordinates.lat, userCoordinates.lon, restaurantType, this.value)
+            .then(data => {
+                currentResults = data.results || [];
+                currentIndex = 0;
+                document.getElementById('results').innerHTML = '';
+                displayNextResults();
+                document.getElementById('loadMore').style.display = currentResults.length > RESULTS_PER_PAGE ? 'block' : 'none';
+            });
+    }
 };
 
 // Set default slider values based on current time

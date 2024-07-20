@@ -1,4 +1,8 @@
+// getRestaurants.js
 const fetch = require('node-fetch');
+const fastFoodFilter = require('./filters/fastFoodFilter');
+const casualDiningFilter = require('./filters/casualDiningFilter');
+const fineDiningFilter = require('./filters/fineDiningFilter');
 
 exports.handler = async function(event, context) {
     const { lat, lon, type } = event.queryStringParameters;
@@ -25,10 +29,9 @@ exports.handler = async function(event, context) {
         } while (nextPageToken);
 
         const filteredData = filterByType(allResults, type, lat, lon);
-        const sortedData = sortByDistance(filteredData, lat, lon);
         return {
             statusCode: 200,
-            body: JSON.stringify({ results: sortedData }),
+            body: JSON.stringify({ results: filteredData }),
             headers: {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Headers': 'Content-Type',
@@ -44,47 +47,19 @@ exports.handler = async function(event, context) {
 };
 
 function filterByType(results, type, lat, lon) {
-    const typesMap = {
-        "0": ["meal_takeaway", "fast_food", "cafe"],  // Fast Food, Cafe
-        "1": ["restaurant"],                         // Casual Dining
-        "2": ["restaurant"]                          // Fine Dining (not an explicit type in Places API)
-    };
-
-    const excludeTypes = ["bar", "home_goods_store", "gas_station"];
-    const fastFoodKeywords = [
-        "burger", "chicken", "sandwich", "fries", "fast food", "wendy's", "dairy queen", "smoothie"
-    ];
-
-    const casualDiningKeywords = [
-        "american", "asian", "indian", "italian", "seafood", "bar & grill"
-    ];
-
-    const excludedFastFoodChains = ["mcdonald's", "dunkin", "starbucks"];
-
-    const typeKeywords = typesMap[type];
-
-    if (!typeKeywords) {
-        return results;
-    }
-
-    let filteredResults = results.filter(restaurant =>
-        (typeKeywords.some(keyword => restaurant.types.includes(keyword)) ||
-        (type === "0" && fastFoodKeywords.some(keyword => restaurant.name.toLowerCase().includes(keyword)))) &&
-        !excludeTypes.some(excludeType => restaurant.types.includes(excludeType)) &&
-        (type !== "0" || (restaurant.types.includes("bakery") ? restaurant.types.includes("cafe") : true))
-    );
-
-    // Exclude fast food from casual dining results and apply specific casual dining criteria
-    if (type === "1") {
-        filteredResults = filteredResults.filter(restaurant => 
-            !fastFoodKeywords.some(keyword => restaurant.name.toLowerCase().includes(keyword)) &&
-            !excludedFastFoodChains.some(chain => restaurant.name.toLowerCase().includes(chain)) &&
-            !restaurant.types.includes("coffee_shop") &&
-            (restaurant.types.includes("bar") ||
-            casualDiningKeywords.some(keyword => restaurant.name.toLowerCase().includes(keyword)) ||
-            (restaurant.types.includes("bakery") && restaurant.types.includes("cafe")) ||
-            (restaurant.types.includes("bakery") && (restaurant.name.toLowerCase().includes("sandwich") || restaurant.name.toLowerCase().includes("soup"))))
-        );
+    let filteredResults;
+    switch (type) {
+        case "0":
+            filteredResults = results.filter(fastFoodFilter);
+            break;
+        case "1":
+            filteredResults = results.filter(casualDiningFilter);
+            break;
+        case "2":
+            filteredResults = results.filter(fineDiningFilter);
+            break;
+        default:
+            filteredResults = results;
     }
 
     // Ensure fast food options are ordered by distance
@@ -99,7 +74,7 @@ function filterByType(results, type, lat, lon) {
     const chainCounts = {};
     filteredResults.forEach(restaurant => {
         const name = restaurant.name.toLowerCase();
-        if (!uniqueRestaurants[name] || calculateDistance(lat, lon, restaurant.geometry.location.lat, restaurant.geometry.location.lng) < 
+        if (!uniqueRestaurants[name] || calculateDistance(lat, lon, restaurant.geometry.location.lat, restaurant.geometry.location.lng) <
             calculateDistance(lat, lon, uniqueRestaurants[name].geometry.location.lat, uniqueRestaurants[name].geometry.location.lng)) {
             uniqueRestaurants[name] = restaurant;
             chainCounts[name] = (chainCounts[name] || 0) + 1;
@@ -110,13 +85,6 @@ function filterByType(results, type, lat, lon) {
         restaurant.chainCount = chainCounts[restaurant.name.toLowerCase()];
         return restaurant;
     });
-}
-
-function sortByDistance(results, lat, lon) {
-    return results.sort((a, b) => 
-        calculateDistance(lat, lon, a.geometry.location.lat, a.geometry.location.lng) -
-        calculateDistance(lat, lon, b.geometry.location.lat, b.geometry.location.lng)
-    );
 }
 
 function calculateDistance(lat1, lon1, lat2, lon2) {

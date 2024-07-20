@@ -1,32 +1,15 @@
-const fetch = require('node-fetch');
+const fetchRestaurants = require('./fetchRestaurants');
 const fastFoodFilter = require('./filters/fastFoodFilter');
 const casualDiningFilter = require('./filters/casualDiningFilter');
 const fineDiningFilter = require('./filters/fineDiningFilter');
+const calculateDistance = require('./calculateDistance');
 
 exports.handler = async function(event, context) {
     const { lat, lon, type, maxDistance } = event.queryStringParameters;
     const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-    const baseUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lon}&radius=${maxDistance * 1609.34}&type=restaurant&key=${apiKey}`;
 
     try {
-        let url = baseUrl;
-        let allResults = [];
-        let nextPageToken = null;
-
-        do {
-            const response = await fetch(url);
-            const data = await response.json();
-            if (data.status !== 'OK') {
-                throw new Error(data.status);
-            }
-            allResults = allResults.concat(data.results);
-            nextPageToken = data.next_page_token;
-            if (nextPageToken) {
-                url = `${baseUrl}&pagetoken=${nextPageToken}`;
-                await new Promise(resolve => setTimeout(resolve, 2000)); // Google Places API requires a short delay before fetching the next page
-            }
-        } while (nextPageToken);
-
+        const allResults = await fetchRestaurants(lat, lon, maxDistance, apiKey);
         const filteredData = filterByType(allResults, type, lat, lon);
         return {
             statusCode: 200,
@@ -82,16 +65,4 @@ function filterByType(results, type, lat, lon) {
         restaurant.chainCount = chainCounts[restaurant.name.toLowerCase()];
         return restaurant;
     });
-}
-
-function calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 3958.8; // Radius of the Earth in miles
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-        0.5 - Math.cos(dLat)/2 + 
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-        (1 - Math.cos(dLon))/2;
-
-    return R * 2 * Math.asin(Math.sqrt(a));
 }

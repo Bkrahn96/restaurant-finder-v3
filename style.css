@@ -31,6 +31,11 @@ body {
     background: linear-gradient(to right, #388e3c, #66bb6a);
 }
 
+.styled-button:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+}
+
 .slider-container {
     margin: 20px 0;
     text-align: center;

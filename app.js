@@ -46,6 +46,7 @@ function initiateSearch() {
     const resultsFooter = document.querySelector('.results-footer');
 
     resultsFooter.style.display = 'none';
+    loadMoreButton.disabled = true;
     if (navigator.geolocation) {
         loading.style.display = 'block';
         navigator.geolocation.getCurrentPosition(function(position) {
@@ -61,6 +62,7 @@ function initiateSearch() {
                     loading.style.display = 'none';
                     updateResultsCount();
                     loadMoreButton.style.display = currentResults.length > RESULTS_PER_PAGE ? 'block' : 'none';
+                    loadMoreButton.disabled = currentResults.length <= RESULTS_PER_PAGE;
                     resultsFooter.style.display = 'flex';
                     displayNextResults();
                 })
@@ -104,11 +106,7 @@ function displayNextResults() {
     });
 
     currentIndex += RESULTS_PER_PAGE;
-    if (currentIndex >= currentResults.length) {
-        loadMoreButton.style.display = 'none';
-    } else {
-        loadMoreButton.style.display = 'block';
-    }
+    loadMoreButton.disabled = currentIndex >= currentResults.length;
     updateResultsCount();
 }
 
@@ -133,7 +131,7 @@ function loadMoreResults() {
                     currentResult.place_id === newResult.place_id));
             currentResults = currentResults.concat(uniqueNewResults);
             displayNextResults();
-            loadMoreButton.style.display = currentResults.length > currentIndex ? 'block' : 'none';
+            loadMoreButton.disabled = currentIndex >= currentResults.length;
             resultsCount.textContent = `Showing ${Math.min(currentIndex, currentResults.length)}/${currentResults.length} results`;
         })
         .catch(error => {

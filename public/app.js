@@ -1,5 +1,5 @@
-import calculateDistance from '../functions/getRestaurants/utils/calculateDistance.js';
-import handleGeolocationError from '../functions/getRestaurants/utils/handleGeolocationError.js';
+import calculateDistance from './functions/getRestaurants/utils/calculateDistance.js';
+import handleGeolocationError from './functions/getRestaurants/utils/handleGeolocationError.js';
 
 let currentResults = [];
 let currentIndex = 0;

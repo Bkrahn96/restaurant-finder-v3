@@ -1,6 +1,7 @@
 [build]
-functions = "./functions"
-publish = "./public"
+  publish = "public"
 
-[dev]
-functions = "./functions"
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

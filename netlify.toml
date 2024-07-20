@@ -1,7 +1,6 @@
 [build]
-  functions = "functions"
+functions = "./functions"
+publish = "./public"
 
-[[redirects]]
-  from = "/functions/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
+[dev]
+functions = "./functions"

@@ -50,12 +50,15 @@ function filterByType(results, type, lat, lon) {
         "2": ["restaurant"]                          // Fine Dining (not an explicit type in Places API)
     };
 
-    const excludeTypes = ["bar", "home_goods_store", "gas_station", "convenience_store", "food", "coffee_shop"];
+    const excludeTypes = ["bar", "home_goods_store", "gas_station"];
     const fastFoodKeywords = [
-        "burger", "chicken", "sandwich", "fries", "fast food", "wendy's", "dairy queen", "smoothie"
+        "burger", "chicken", "sandwich", "fries", "fast food", "wendy's", "dairy queen", "mcdonald's", "smoothie"
     ];
     const casualDiningKeywords = [
-        "american restaurant", "asian", "indian", "italian", "seafood", "bar & grill", "home style", "home cooking"
+        "american", "asian", "indian", "italian", "seafood", "bar & grill", "home style"
+    ];
+    const excludedCasualDiningKeywords = [
+        "fast food", "home cooking", "dunkin", "starbucks", "mcdonald's"
     ];
 
     const typeKeywords = typesMap[type];
@@ -71,17 +74,14 @@ function filterByType(results, type, lat, lon) {
         (type !== "0" || (restaurant.types.includes("bakery") ? restaurant.types.includes("cafe") : true))
     );
 
-    // Exclude fast food from casual dining results and apply additional filters
+    // Exclude fast food from casual dining results and apply additional criteria
     if (type === "1") {
         filteredResults = filteredResults.filter(restaurant => 
             !fastFoodKeywords.some(keyword => restaurant.name.toLowerCase().includes(keyword)) &&
-            !["fast_food", "meal_takeaway"].some(excludeType => restaurant.types.includes(excludeType)) &&
-            (casualDiningKeywords.some(keyword => restaurant.name.toLowerCase().includes(keyword)) ||
-            casualDiningKeywords.some(keyword => restaurant.types.includes(keyword))) &&
-            !(restaurant.types.includes("bakery") && !restaurant.types.includes("cafe")) &&
-            !restaurant.name.toLowerCase().includes("dunkin") &&
-            !restaurant.name.toLowerCase().includes("starbucks") &&
-            !["mcdonald's", "burger king", "wendy's", "dairy queen", "subway"].some(chain => restaurant.name.toLowerCase().includes(chain))
+            !excludedCasualDiningKeywords.some(keyword => restaurant.name.toLowerCase().includes(keyword)) &&
+            (casualDiningKeywords.some(keyword => restaurant.types.includes(keyword) || restaurant.name.toLowerCase().includes(keyword))) &&
+            (!restaurant.types.includes("bakery") || restaurant.types.includes("cafe")) &&
+            (!restaurant.types.includes("cafe") || restaurant.name.toLowerCase().includes("lunch") || restaurant.name.toLowerCase().includes("dinner"))
         );
     }
 

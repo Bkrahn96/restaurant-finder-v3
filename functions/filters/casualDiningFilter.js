@@ -1,7 +1,14 @@
 // functions/filters/casualDiningFilter.js
+const casualDiningKeywords = [
+    "grill", "bistro", "cafe", "diner", "pub", "tavern", 
+    "brunch", "eatery", "family style", "pizzeria", "bar & grill"
+];
+
 function casualDiningFilter(restaurant) {
-    const types = ["restaurant"];
-    return types.some(type => restaurant.types.includes(type));
+    return (
+        casualDiningKeywords.some(keyword => restaurant.name.toLowerCase().includes(keyword)) ||
+        restaurant.types.includes("restaurant")
+    );
 }
 
 module.exports = casualDiningFilter;

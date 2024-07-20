@@ -1,7 +1,14 @@
 // functions/filters/fineDiningFilter.js
+const fineDiningKeywords = [
+    "steakhouse", "gourmet", "fine dining", "seafood", "sushi", 
+    "wine bar", "chef's table", "fusion", "tapas", "brasserie"
+];
+
 function fineDiningFilter(restaurant) {
-    const types = ["restaurant"];
-    return types.some(type => restaurant.types.includes(type));
+    return (
+        fineDiningKeywords.some(keyword => restaurant.name.toLowerCase().includes(keyword)) ||
+        restaurant.types.includes("restaurant")
+    );
 }
 
 module.exports = fineDiningFilter;

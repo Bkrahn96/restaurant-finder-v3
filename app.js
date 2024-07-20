@@ -17,7 +17,7 @@ document.getElementById('restaurantTypeSlider').oninput = function() {
 
 document.getElementById('distanceSlider').oninput = function() {
     const distanceValue = document.getElementById('distanceValue');
-    distanceValue.textContent = `${this.value} Miles`;
+    distanceValue.textContent = `${this.value} Mile${this.value > 1 ? 's' : ''}`;
     if (userCoordinates) {
         const restaurantType = document.getElementById('restaurantTypeSlider').value;
         fetchRestaurants(userCoordinates.lat, userCoordinates.lon, restaurantType, this.value)
@@ -154,4 +154,6 @@ window.onload = function() {
     } else {
         mealTimeSlider.value = 1; // Default to Lunch
     }
+    document.getElementById('distanceSlider').value = 1;
+    document.getElementById('distanceValue').textContent = '1 Mile';
 };

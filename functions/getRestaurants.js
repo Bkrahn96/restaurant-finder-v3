@@ -25,9 +25,10 @@ exports.handler = async function(event, context) {
         } while (nextPageToken);
 
         const filteredData = filterByType(allResults, type, lat, lon);
+        const sortedData = sortByDistance(filteredData, lat, lon);
         return {
             statusCode: 200,
-            body: JSON.stringify({ results: filteredData }),
+            body: JSON.stringify({ results: sortedData }),
             headers: {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Headers': 'Content-Type',
@@ -74,14 +75,6 @@ function filterByType(results, type, lat, lon) {
         );
     }
 
-    // Ensure fast food options are ordered by distance
-    if (type === "0") {
-        filteredResults.sort((a, b) => 
-            calculateDistance(lat, lon, a.geometry.location.lat, a.geometry.location.lng) -
-            calculateDistance(lat, lon, b.geometry.location.lat, b.geometry.location.lng)
-        );
-    }
-
     const uniqueRestaurants = {};
     const chainCounts = {};
     filteredResults.forEach(restaurant => {
@@ -97,6 +90,13 @@ function filterByType(results, type, lat, lon) {
         restaurant.chainCount = chainCounts[restaurant.name.toLowerCase()];
         return restaurant;
     });
+}
+
+function sortByDistance(results, lat, lon) {
+    return results.sort((a, b) => 
+        calculateDistance(lat, lon, a.geometry.location.lat, a.geometry.location.lng) -
+        calculateDistance(lat, lon, b.geometry.location.lat, b.geometry.location.lng)
+    );
 }
 
 function calculateDistance(lat1, lon1, lat2, lon2) {

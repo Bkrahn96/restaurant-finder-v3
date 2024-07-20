@@ -117,7 +117,22 @@ function updateResultsCount() {
 function loadMoreResults() {
     const resultsCount = document.getElementById('results-count');
     resultsCount.textContent = 'Loading...';
-    displayNextResults();
+
+    const results = document.getElementById('results');
+    const loadMoreButton = document.getElementById('loadMore');
+    const restaurantType = document.getElementById('restaurantTypeSlider').value;
+
+    fetchRestaurants(userCoordinates.lat, userCoordinates.lon, restaurantType, maxDistance)
+        .then(data => {
+            currentResults = currentResults.concat(data.results || []);
+            displayNextResults();
+            loadMoreButton.style.display = currentResults.length > currentIndex ? 'block' : 'none';
+            resultsCount.textContent = `Showing ${Math.min(currentIndex, currentResults.length)}/${currentResults.length} results`;
+        })
+        .catch(error => {
+            results.innerHTML = '<p>Failed to fetch restaurant data. Please try again later.</p>';
+            loadMoreButton.style.display = 'none';
+        });
 }
 
 function calculateDistance(lat1, lon1, lat2, lon2) {

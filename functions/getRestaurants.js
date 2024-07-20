@@ -1,4 +1,4 @@
-// getRestaurants.js
+// functions/getRestaurants.js
 const fetch = require('node-fetch');
 const fastFoodFilter = require('./filters/fastFoodFilter');
 const casualDiningFilter = require('./filters/casualDiningFilter');

@@ -1,4 +1,4 @@
-// filters/fastFoodFilter.js
+// functions/filters/fastFoodFilter.js
 const fastFoodKeywords = ["burger", "chicken", "sandwich", "fries", "fast food", "wendy's", "dairy queen"];
 
 function fastFoodFilter(restaurant) {

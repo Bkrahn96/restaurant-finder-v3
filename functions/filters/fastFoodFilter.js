@@ -1,5 +1,10 @@
 // functions/filters/fastFoodFilter.js
-const fastFoodKeywords = ["burger", "chicken", "sandwich", "fries", "smoothie"];
+const fastFoodKeywords = [
+    "burger", "chicken", "sandwich", "fries", "taco", "pizza", 
+    "sub", "hot dog", "ice cream", "milkshake", "smoothie", 
+    "fast food", "dairy queen", "wendy's", "mcdonald's", 
+    "kfc", "taco bell", "subway", "pizza hut", "domino's"
+];
 
 function fastFoodFilter(restaurant) {
     const excludeTypes = ["bar", "home_goods_store"];

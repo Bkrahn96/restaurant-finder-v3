@@ -55,8 +55,13 @@ body {
     margin-top: 20px;
 }
 
-.results-count {
-    margin-top: 10px;
-    font-size: 1.2em;
-    text-align: right;
+.results-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+#results-count {
+    font-size: 1em;
 }

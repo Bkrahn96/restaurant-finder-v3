@@ -3,14 +3,13 @@ let currentIndex = 0;
 let userCoordinates = null;
 const RESULTS_PER_PAGE = 3;
 let maxDistance = 1;
-let allResults = [];
 
 document.getElementById('findRestaurant').onclick = function() {
     initiateSearch();
 };
 
 document.getElementById('loadMore').onclick = function() {
-    displayNextResults();
+    loadMoreResults();
 };
 
 document.getElementById('restaurantTypeSlider').oninput = function() {
@@ -24,7 +23,7 @@ document.getElementById('distanceSlider').oninput = function() {
 
     if (newMaxDistance < maxDistance) {
         maxDistance = newMaxDistance;
-        currentResults = allResults.filter(restaurant => calculateDistance(
+        currentResults = currentResults.filter(restaurant => calculateDistance(
             userCoordinates.lat,
             userCoordinates.lon,
             restaurant.geometry.location.lat,
@@ -54,8 +53,7 @@ function initiateSearch() {
             const restaurantType = document.getElementById('restaurantTypeSlider').value;
             fetchRestaurants(lat, lon, restaurantType, maxDistance)
                 .then(data => {
-                    allResults = data.results || [];
-                    currentResults = allResults.slice();
+                    currentResults = data.results || [];
                     currentIndex = 0;
                     results.innerHTML = '';
                     loading.style.display = 'none';
@@ -79,12 +77,7 @@ function initiateSearch() {
 function displayNextResults() {
     const results = document.getElementById('results');
     const loadMoreButton = document.getElementById('loadMore');
-    const resultsCount = document.getElementById('results-count');
     const nextResults = currentResults.slice(currentIndex, currentIndex + RESULTS_PER_PAGE);
-
-    if (nextResults.length > 0) {
-        resultsCount.textContent = 'Loading...';
-    }
 
     nextResults.forEach(restaurant => {
         const div = document.createElement('div');
@@ -108,15 +101,38 @@ function displayNextResults() {
     });
 
     currentIndex += RESULTS_PER_PAGE;
-    updateResultsCount();
     if (currentIndex >= currentResults.length) {
         loadMoreButton.style.display = 'none';
     }
+    updateResultsCount();
 }
 
 function updateResultsCount() {
     const resultsCount = document.getElementById('results-count');
-    resultsCount.textContent = `Total Results Found: ${currentResults.length}`;
+    resultsCount.textContent = `Showing ${Math.min(currentIndex, currentResults.length)}/${currentResults.length} results`;
+}
+
+function loadMoreResults() {
+    const resultsCount = document.getElementById('results-count');
+    resultsCount.textContent = 'Loading...';
+
+    const results = document.getElementById('results');
+    const loadMoreButton = document.getElementById('loadMore');
+    const restaurantType = document.getElementById('restaurantTypeSlider').value;
+
+    fetchRestaurants(userCoordinates.lat, userCoordinates.lon, restaurantType, maxDistance)
+        .then(data => {
+            currentResults = data.results || [];
+            currentIndex = 0;
+            results.innerHTML = '';
+            displayNextResults();
+            loadMoreButton.style.display = currentResults.length > RESULTS_PER_PAGE ? 'block' : 'none';
+            resultsCount.textContent = `Showing ${Math.min(currentIndex, currentResults.length)}/${currentResults.length} results`;
+        })
+        .catch(error => {
+            results.innerHTML = '<p>Failed to fetch restaurant data. Please try again later.</p>';
+            loadMoreButton.style.display = 'none';
+        });
 }
 
 function calculateDistance(lat1, lon1, lat2, lon2) {

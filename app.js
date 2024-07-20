@@ -2,6 +2,7 @@ let currentResults = [];
 let currentIndex = 0;
 let userCoordinates = null;
 const RESULTS_PER_PAGE = 3;
+let maxDistance = 1;
 
 document.getElementById('findRestaurant').onclick = function() {
     initiateSearch();
@@ -17,18 +18,24 @@ document.getElementById('restaurantTypeSlider').oninput = function() {
 
 document.getElementById('distanceSlider').oninput = function() {
     const distanceValue = document.getElementById('distanceValue');
-    distanceValue.textContent = `${this.value} Mile${this.value > 1 ? 's' : ''}`;
-    if (userCoordinates) {
-        const restaurantType = document.getElementById('restaurantTypeSlider').value;
-        fetchRestaurants(userCoordinates.lat, userCoordinates.lon, restaurantType, this.value)
-            .then(data => {
-                currentResults = data.results || [];
-                currentIndex = 0;
-                document.getElementById('results').innerHTML = '';
-                updateResultsCount();
-                displayNextResults();
-                document.getElementById('loadMore').style.display = currentResults.length > RESULTS_PER_PAGE ? 'block' : 'none';
-            });
+    const newMaxDistance = this.value;
+    distanceValue.textContent = `${newMaxDistance} Mile${newMaxDistance > 1 ? 's' : ''}`;
+
+    if (newMaxDistance < maxDistance) {
+        maxDistance = newMaxDistance;
+        currentResults = currentResults.filter(restaurant => calculateDistance(
+            userCoordinates.lat,
+            userCoordinates.lon,
+            restaurant.geometry.location.lat,
+            restaurant.geometry.location.lng
+        ) <= maxDistance);
+        document.getElementById('results').innerHTML = '';
+        currentIndex = 0;
+        displayNextResults();
+        updateResultsCount();
+    } else {
+        maxDistance = newMaxDistance;
+        document.getElementById('loadMore').style.display = 'block';
     }
 };
 
@@ -44,7 +51,6 @@ function initiateSearch() {
             const lon = position.coords.longitude;
             userCoordinates = { lat, lon };
             const restaurantType = document.getElementById('restaurantTypeSlider').value;
-            const maxDistance = document.getElementById('distanceSlider').value;
             fetchRestaurants(lat, lon, restaurantType, maxDistance)
                 .then(data => {
                     currentResults = data.results || [];

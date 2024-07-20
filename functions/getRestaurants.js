@@ -50,9 +50,6 @@ function filterByType(results, type, lat, lon) {
     };
 
     const excludeTypes = ["bar", "home_goods_store"];
-    const fastFoodKeywords = [
-        "burger", "chicken", "sandwich", "fries", "fast food", "wendy's", "dairy queen"
-    ];
 
     const typeKeywords = typesMap[type];
 
@@ -67,13 +64,11 @@ function filterByType(results, type, lat, lon) {
         (type !== "0" || (restaurant.types.includes("bakery") ? restaurant.types.includes("cafe") : true))
     );
 
-    // Ensure fast food options are ordered by distance
-    if (type === "0") {
-        filteredResults.sort((a, b) => 
-            calculateDistance(lat, lon, a.geometry.location.lat, a.geometry.location.lng) -
-            calculateDistance(lat, lon, b.geometry.location.lat, b.geometry.location.lng)
-        );
-    }
+    // Order by distance for all types
+    filteredResults.sort((a, b) => 
+        calculateDistance(lat, lon, a.geometry.location.lat, a.geometry.location.lng) -
+        calculateDistance(lat, lon, b.geometry.location.lat, b.geometry.location.lng)
+    );
 
     const uniqueRestaurants = {};
     const chainCounts = {};

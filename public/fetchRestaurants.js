@@ -1,7 +1,5 @@
-const fetch = require('node-fetch');
-
-async function fetchRestaurants(lat, lon, maxDistance, apiKey) {
-    const baseUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lon}&radius=${maxDistance * 1609.34}&type=restaurant&key=${apiKey}`;
+export async function fetchRestaurants(lat, lon, maxDistance, apiKey) {
+    const baseUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat}&radius=${maxDistance * 1609.34}&type=restaurant&key=${apiKey}`;
     let url = baseUrl;
     let allResults = [];
     let nextPageToken = null;
@@ -22,5 +20,3 @@ async function fetchRestaurants(lat, lon, maxDistance, apiKey) {
 
     return allResults;
 }
-
-module.exports = fetchRestaurants;

@@ -1,6 +1,6 @@
-import { fetchRestaurants } from '../functions/fetchRestaurants.js';
-import { calculateDistance } from '../functions/calculateDistance.js';
-import { handleGeolocationError } from '../functions/handleGeolocationError.js';
+import { fetchRestaurants } from './fetchRestaurants.js';
+import { calculateDistance } from './calculateDistance.js';
+import { handleGeolocationError } from './handleGeolocationError.js';
 
 let currentResults = [];
 let currentIndex = 0;

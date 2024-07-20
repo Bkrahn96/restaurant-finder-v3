@@ -1,4 +1,4 @@
-function handleGeolocationError(error) {
+export function handleGeolocationError(error) {
     const results = document.getElementById('results');
     switch(error.code) {
         case error.PERMISSION_DENIED:
@@ -16,5 +16,3 @@ function handleGeolocationError(error) {
     }
     alert('Geolocation error. Please check your browser settings and try again.');
 }
-
-module.exports = handleGeolocationError;

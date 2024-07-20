@@ -1,3 +1,6 @@
+import calculateDistance from './functions/getRestaurants/utils/calculateDistance.js';
+import handleGeolocationError from './functions/getRestaurants/utils/handleGeolocationError.js';
+
 let currentResults = [];
 let currentIndex = 0;
 let userCoordinates = null;
@@ -138,37 +141,6 @@ function loadMoreResults() {
             results.innerHTML = '<p>Failed to fetch restaurant data. Please try again later.</p>';
             loadMoreButton.style.display = 'none';
         });
-}
-
-function calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 3958.8; // Radius of the Earth in miles
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-        0.5 - Math.cos(dLat)/2 + 
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-        (1 - Math.cos(dLon))/2;
-
-    return R * 2 * Math.asin(Math.sqrt(a));
-}
-
-function handleGeolocationError(error) {
-    const results = document.getElementById('results');
-    switch(error.code) {
-        case error.PERMISSION_DENIED:
-            results.innerHTML = '<p>User denied the request for Geolocation.</p>';
-            break;
-        case error.POSITION_UNAVAILABLE:
-            results.innerHTML = '<p>Location information is unavailable.</p>';
-            break;
-        case error.TIMEOUT:
-            results.innerHTML = '<p>The request to get user location timed out.</p>';
-            break;
-        case error.UNKNOWN_ERROR:
-            results.innerHTML = '<p>An unknown error occurred.</p>';
-            break;
-    }
-    alert('Geolocation error. Please check your browser settings and try again.');
 }
 
 function fetchRestaurants(lat, lon, type, maxDistance) {

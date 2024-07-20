@@ -1,5 +1,7 @@
-import calculateDistance from './functions/getRestaurants/utils/calculateDistance.js';
-import handleGeolocationError from './functions/getRestaurants/utils/handleGeolocationError.js';
+// public/app.js
+import calculateDistance from '../functions/calculateDistance';
+import handleGeolocationError from '../functions/handleGeolocationError';
+import fetchRestaurants from '../functions/fetchRestaurants';
 
 let currentResults = [];
 let currentIndex = 0;
@@ -141,11 +143,6 @@ function loadMoreResults() {
             results.innerHTML = '<p>Failed to fetch restaurant data. Please try again later.</p>';
             loadMoreButton.style.display = 'none';
         });
-}
-
-function fetchRestaurants(lat, lon, type, maxDistance) {
-    const url = `/.netlify/functions/getRestaurants?lat=${lat}&lon=${lon}&type=${type}&maxDistance=${maxDistance}`;
-    return fetch(url).then(response => response.json());
 }
 
 // Set default slider values based on current time

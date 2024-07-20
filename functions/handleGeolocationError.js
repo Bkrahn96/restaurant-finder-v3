@@ -1,5 +1,5 @@
-// functions/getRestaurants/utils/handleGeolocationError.js
-function handleGeolocationError(error) {
+// functions/handleGeolocationError.js
+module.exports = function handleGeolocationError(error) {
     const results = document.getElementById('results');
     switch(error.code) {
         case error.PERMISSION_DENIED:
@@ -16,6 +16,4 @@ function handleGeolocationError(error) {
             break;
     }
     alert('Geolocation error. Please check your browser settings and try again.');
-}
-
-module.exports = handleGeolocationError;
+};

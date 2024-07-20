@@ -1,9 +1,9 @@
-// functions/getRestaurants/getRestaurants.js
+// functions/getRestaurants.js
 const fetch = require('node-fetch');
 const fastFoodFilter = require('./filters/fastFoodFilter');
 const casualDiningFilter = require('./filters/casualDiningFilter');
 const fineDiningFilter = require('./filters/fineDiningFilter');
-const calculateDistance = require('./utils/calculateDistance');
+const calculateDistance = require('./calculateDistance');
 
 exports.handler = async function(event, context) {
     const { lat, lon, type, maxDistance } = event.queryStringParameters;

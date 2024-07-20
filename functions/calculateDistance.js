@@ -1,5 +1,5 @@
-// functions/getRestaurants/utils/calculateDistance.js
-function calculateDistance(lat1, lon1, lat2, lon2) {
+// functions/calculateDistance.js
+module.exports = function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 3958.8; // Radius of the Earth in miles
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
@@ -9,6 +9,4 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
         (1 - Math.cos(dLon))/2;
 
     return R * 2 * Math.asin(Math.sqrt(a));
-}
-
-module.exports = calculateDistance;
+};

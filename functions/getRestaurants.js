@@ -51,7 +51,7 @@ function filterByType(results, type, lat, lon) {
 
     const excludeTypes = ["bar", "home_goods_store"];
     const fastFoodKeywords = [
-        "burger", "chicken", "sandwich", "fries", "fast food", "wendy's", "dairy queen"
+        "burger", "chicken", "sandwich", "fries", "fast food", "wendy's", "dairy queen", "smoothie"
     ];
 
     const typeKeywords = typesMap[type];
@@ -67,6 +67,13 @@ function filterByType(results, type, lat, lon) {
         (type !== "0" || (restaurant.types.includes("bakery") ? restaurant.types.includes("cafe") : true))
     );
 
+    // Exclude fast food from casual dining results
+    if (type === "1") {
+        filteredResults = filteredResults.filter(restaurant => 
+            !fastFoodKeywords.some(keyword => restaurant.name.toLowerCase().includes(keyword))
+        );
+    }
+
     // Ensure fast food options are ordered by distance
     if (type === "0") {
         filteredResults.sort((a, b) => 
@@ -79,7 +86,7 @@ function filterByType(results, type, lat, lon) {
     const chainCounts = {};
     filteredResults.forEach(restaurant => {
         const name = restaurant.name.toLowerCase();
-        if (!uniqueRestaurants[name] || calculateDistance(lat, lon, restaurant.geometry.location.lat, restaurant.geometry.location.lng) <
+        if (!uniqueRestaurants[name] || calculateDistance(lat, lon, restaurant.geometry.location.lat, restaurant.geometry.location.lng) < 
             calculateDistance(lat, lon, uniqueRestaurants[name].geometry.location.lat, uniqueRestaurants[name].geometry.location.lng)) {
             uniqueRestaurants[name] = restaurant;
             chainCounts[name] = (chainCounts[name] || 0) + 1;

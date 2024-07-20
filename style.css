@@ -55,7 +55,8 @@ body {
     margin-top: 20px;
 }
 
-#results-count {
+.results-count {
     margin-top: 10px;
     font-size: 1.2em;
+    text-align: right;
 }

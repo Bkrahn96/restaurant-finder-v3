@@ -3,6 +3,7 @@ let currentIndex = 0;
 let userCoordinates = null;
 const RESULTS_PER_PAGE = 3;
 let maxDistance = 1;
+let allResults = [];
 
 document.getElementById('findRestaurant').onclick = function() {
     initiateSearch();
@@ -23,7 +24,7 @@ document.getElementById('distanceSlider').oninput = function() {
 
     if (newMaxDistance < maxDistance) {
         maxDistance = newMaxDistance;
-        currentResults = currentResults.filter(restaurant => calculateDistance(
+        currentResults = allResults.filter(restaurant => calculateDistance(
             userCoordinates.lat,
             userCoordinates.lon,
             restaurant.geometry.location.lat,
@@ -53,7 +54,8 @@ function initiateSearch() {
             const restaurantType = document.getElementById('restaurantTypeSlider').value;
             fetchRestaurants(lat, lon, restaurantType, maxDistance)
                 .then(data => {
-                    currentResults = data.results || [];
+                    allResults = data.results || [];
+                    currentResults = allResults.slice();
                     currentIndex = 0;
                     results.innerHTML = '';
                     loading.style.display = 'none';
@@ -77,7 +79,12 @@ function initiateSearch() {
 function displayNextResults() {
     const results = document.getElementById('results');
     const loadMoreButton = document.getElementById('loadMore');
+    const resultsCount = document.getElementById('results-count');
     const nextResults = currentResults.slice(currentIndex, currentIndex + RESULTS_PER_PAGE);
+
+    if (nextResults.length > 0) {
+        resultsCount.textContent = 'Loading...';
+    }
 
     nextResults.forEach(restaurant => {
         const div = document.createElement('div');
@@ -101,6 +108,7 @@ function displayNextResults() {
     });
 
     currentIndex += RESULTS_PER_PAGE;
+    updateResultsCount();
     if (currentIndex >= currentResults.length) {
         loadMoreButton.style.display = 'none';
     }

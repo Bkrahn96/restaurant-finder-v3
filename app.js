@@ -43,7 +43,9 @@ function initiateSearch() {
     const results = document.getElementById('results');
     const loading = document.getElementById('loading');
     const loadMoreButton = document.getElementById('loadMore');
+    const resultsFooter = document.querySelector('.results-footer');
 
+    resultsFooter.style.display = 'none';
     if (navigator.geolocation) {
         loading.style.display = 'block';
         navigator.geolocation.getCurrentPosition(function(position) {
@@ -59,6 +61,7 @@ function initiateSearch() {
                     loading.style.display = 'none';
                     updateResultsCount();
                     loadMoreButton.style.display = currentResults.length > RESULTS_PER_PAGE ? 'block' : 'none';
+                    resultsFooter.style.display = 'flex';
                     displayNextResults();
                 })
                 .catch(error => {
@@ -124,7 +127,11 @@ function loadMoreResults() {
 
     fetchRestaurants(userCoordinates.lat, userCoordinates.lon, restaurantType, maxDistance)
         .then(data => {
-            currentResults = currentResults.concat(data.results || []);
+            const newResults = data.results || [];
+            const uniqueNewResults = newResults.filter(newResult => 
+                !currentResults.some(currentResult => 
+                    currentResult.place_id === newResult.place_id));
+            currentResults = currentResults.concat(uniqueNewResults);
             displayNextResults();
             loadMoreButton.style.display = currentResults.length > currentIndex ? 'block' : 'none';
             resultsCount.textContent = `Showing ${Math.min(currentIndex, currentResults.length)}/${currentResults.length} results`;

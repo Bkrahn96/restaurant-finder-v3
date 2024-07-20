@@ -45,7 +45,7 @@ exports.handler = async function(event, context) {
 function filterByType(results, type, lat, lon) {
     const typesMap = {
         "0": ["meal_takeaway", "fast_food", "cafe"],  // Fast Food, Cafe
-        "1": ["restaurant"],                         // Casual Dining
+        "1": ["restaurant", "bar", "pub"],            // Casual Dining, Bars, Pubs
         "2": ["restaurant"]                          // Fine Dining (not an explicit type in Places API)
     };
 
@@ -62,8 +62,8 @@ function filterByType(results, type, lat, lon) {
     }
 
     let filteredResults = results.filter(restaurant =>
-        (typeKeywords.some(keyword => restaurant.types.includes(keyword)) ||
-        (type === "0" && fastFoodKeywords.some(keyword => restaurant.name.toLowerCase().includes(keyword)))) &&
+        typeKeywords.some(keyword => restaurant.types.includes(keyword)) &&
+        !fastFoodKeywords.some(keyword => restaurant.name.toLowerCase().includes(keyword)) &&
         !excludeTypes.some(excludeType => restaurant.types.includes(excludeType)) &&
         (type !== "0" || (restaurant.types.includes("bakery") ? restaurant.types.includes("cafe") : true))
     );

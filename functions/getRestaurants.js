@@ -1,15 +1,34 @@
-const fetchRestaurants = require('./fetchRestaurants');
+// functions/getRestaurants.js
+const fetch = require('node-fetch');
+const fastFoodFilter = require('./filters/fastFoodFilter');
+const casualDiningFilter = require('./filters/casualDiningFilter');
+const fineDiningFilter = require('./filters/fineDiningFilter');
 const calculateDistance = require('./calculateDistance');
-const fastFoodFilter = require('../filters/fastFoodFilter');
-const casualDiningFilter = require('../filters/casualDiningFilter');
-const fineDiningFilter = require('../filters/fineDiningFilter');
 
 exports.handler = async function(event, context) {
     const { lat, lon, type, maxDistance } = event.queryStringParameters;
     const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+    const baseUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lon}&radius=${maxDistance * 1609.34}&type=restaurant&key=${apiKey}`;
 
     try {
-        const allResults = await fetchRestaurants(lat, lon, type, maxDistance, apiKey);
+        let url = baseUrl;
+        let allResults = [];
+        let nextPageToken = null;
+
+        do {
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data.status !== 'OK') {
+                throw new Error(data.status);
+            }
+            allResults = allResults.concat(data.results);
+            nextPageToken = data.next_page_token;
+            if (nextPageToken) {
+                url = `${baseUrl}&pagetoken=${nextPageToken}`;
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Google Places API requires a short delay before fetching the next page
+            }
+        } while (nextPageToken);
+
         const filteredData = filterByType(allResults, type, lat, lon);
         return {
             statusCode: 200,

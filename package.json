@@ -2,7 +2,7 @@
     "name": "restaurant-finder",
     "version": "1.0.0",
     "description": "Restaurant Finder Tool",
-    "main": "scripts/app.js",
+    "main": "public/app.js",
     "scripts": {
         "start": "netlify dev",
         "build": "echo 'Building the project...' && exit 0"
